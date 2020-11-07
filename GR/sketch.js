@@ -10,24 +10,24 @@ function setup() {
   background(200);
 
   // Create the walls and light source
-  source = lightsource(width / 2, height / 2);
-  Walls = [w1, w2, w3, w4] // Input manually here to desired shape
+  // source = lightsource(width / 2, height / 2);
+  // Walls = [w1, w2, w3, w4] // Input manually here to desired shape
 
-  mass = new massive(mass1, (300,200), 10, 10)
-  ellipse(300, 200, mass.radius, mass.radius)
+  // mass = new massive(mass1, (300,200), 10, 10)
+  // ellipse(300, 200, mass.radius, mass.radius)
 }
 
 // Draw function is called many times each second
 function draw() {
 
+  /*
   // FORMAT REFERENCE:
   // Point ~ [x0, y1]
   // Line ~ [[x0,y0],[x1,y1]] == [point1, point2]
 
-
   // Initial list of points to draw lines to
-  points = []
-  Walls.forEach(wall => {
+    points = []
+    Walls.forEach(wall => {
     wall.forEach(point => {
       points.append([point.x, point.y])
     })
@@ -66,5 +66,5 @@ function draw() {
   })
 
   // Draw the rays
-  rays.forEach(ray => line(rays[0][0], rays[0][1], rays[1][0], rays[1][1]))
+  rays.forEach(ray => line(rays[0][0], rays[0][1], rays[1][0], rays[1][1]))*/
 }
