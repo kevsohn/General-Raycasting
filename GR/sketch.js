@@ -9,8 +9,8 @@ function setup() {
   // Create the canvas
   var canvas = createCanvas(720, 400);
   canvas.parent('sketch-div');
-  background(32);
-
+  background(200,200,200);
+  stroke(1);
 
   var slider = document.getElementById("mass");
   var output = document.getElementById("demo");
@@ -22,20 +22,31 @@ function setup() {
   }
 
 
-
-
-
   // Create the walls and light source
-  source = lightsource(width / 2, height / 2);
-  Walls = [] // Input manually here to desired shape
+  var source = new Lightsource(width / 2, height / 2);
 
+  // Make a square :D
+  let p1 = [0,0];
+  let p2 = [0,20];
+  let p3 = [20,20];
+  let p4 = [20,0];
+  w1 = new Wall([p1, p2, p3, p4, p1]);
+  Walls = [w1] // Input manually here to desired shape
 }
 
 // Draw function is called many times each second
 function draw() {
-  // FORMAT REFERENCE:
-  // Point ~ [x0, y1]
-  // Line ~ [[x0,y0],[x1,y1]] == [point1, point2]
+  // // FORMAT REFERENCE:
+  // // Point ~ [x0, y1]
+  // // Line ~ [[x0,y0],[x1,y1]] == [point1, point2]
+
+  // Draw the walls
+  Walls.forEach(wall => {
+    wall.show();
+  })
+
+  // Draw the lightsource
+  source.show();
 
 
   // Initial list of points to draw lines to
@@ -46,10 +57,10 @@ function draw() {
     })
   })
 
-  // Okay now we have the points we want so if we wanted rays to all the points we could do
-  // line(point.x, point.y, source.x, source.y) for each point.
-  // First though we want to remove points s.t. the ray to those points already passes through 
-  // a wall
+  // // Okay now we have the points we want so if we wanted rays to all the points we could do
+  // // line(point.x, point.y, source.x, source.y) for each point.
+  // // First though we want to remove points s.t. the ray to those points already passes through 
+  // // a wall
 
   // So lets collect all the lines to make this task easier.
   bdrylines = []
@@ -59,7 +70,7 @@ function draw() {
     }
   })
 
-  // Ok now lets get the lines from the source to the points
+  // // Ok now lets get the lines from the source to the points
 
   sourcelines = []
   points.forEach(point => {
@@ -78,6 +89,6 @@ function draw() {
     })
   })
 
-  // Draw the rays
+  // // Draw the rays
   rays.forEach(ray => line(rays[0][0], rays[0][1], rays[1][0], rays[1][1]))
 }
