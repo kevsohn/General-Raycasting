@@ -1,14 +1,17 @@
+let b;
+
 function setup() {
   // Create the canvas
   createCanvas(720, 400);
-  background(200);
+  //background(200);
 
+  /*
   // Set colors
   fill(204, 101, 192, 127);
   stroke(127, 63, 120);
 
   // A rectangle
-  //rect(40, 120, 120, 40);
+  rect(40, 120, 120, 40);
   // An ellipse
   ellipse(240, 240, 80, 80);
   // A triangle
@@ -20,10 +23,15 @@ function setup() {
   for (let i = 0; i < 10; i ++) {
     ellipse(0, 30, 20, 80);
     rotate(PI/5);
-  }
+  }*/
+
+  b = new Boundary(50,100,50,50);
 }
 
 function draw() {
   // put drawing code here
-  ellipse(50, 50);
+  //ellipse(50, 50);
+  background(0);
+  b.show();
+  light.lookAt(mouseX, mouseY);
 }
