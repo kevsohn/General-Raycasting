@@ -1,8 +1,8 @@
 // Setup function is called once
 
 // Global parameters
-// var Walls;
-// var source;
+var Walls;
+var source;
 
 function setup() {
 
@@ -23,7 +23,7 @@ function setup() {
 
 
   // Create the walls and light source
-  var source = new Lightsource(width / 2, height / 2);
+  source = new Lightsource(width / 2, height / 2);
 
   // Make a square :D
   let p1 = [0,0];
@@ -31,7 +31,7 @@ function setup() {
   let p3 = [20,20];
   let p4 = [20,0];
   w1 = new Wall([p1, p2, p3, p4, p1]);
-  Walls = [w1] // Input manually here to desired shape
+  Walls = [w1]
 }
 
 // Draw function is called many times each second
