@@ -1,29 +1,28 @@
+// Setup function is called once
+
+// Global parameters
+var Walls;
+var source;
+
 function setup() {
   // // Create the canvas
   createCanvas(720, 400);
   background(200);
 
-  // // Set colors
-  // fill(204, 101, 192, 127);
-  // stroke(127, 63, 120);
+  // Create the walls and light source
+  source = lightsource(width / 2, height / 2);
+  Walls = [w1, w2, w3, w4] // Input manually here to desired shape
 
-  // // A rectangle
-  // //rect(40, 120, 120, 40);
-  // // An ellipse
-  // ellipse(240, 240, 80, 80);
-  // // A triangle
-  // triangle(300, 100, 320, 100, 310, 80);
+}
 
-  // // A design for a simple flower
-  // translate(580, 200);
-  // noStroke();
-  // for (let i = 0; i < 10; i ++) {
-  //   ellipse(0, 30, 20, 80);
-  //   rotate(PI/5);
+// Draw function is called many times each second
+function draw() {
 
-  source = lightsource(mousex, mousey);
-  let Walls = [w1, w2, w3, w4]
-  
+  // FORMAT REFERENCE:
+  // Point ~ [x0, y1]
+  // Line ~ [[x0,y0],[x1,y1]] == [point1, point2]
+
+
   // Initial list of points to draw lines to
   points = []
   Walls.forEach(wall => {
@@ -41,7 +40,7 @@ function setup() {
   bdrylines = []
   Walls.forEach(wall => {
     for (var i = 0; i < wall.length-1; i++) {
-      bdrylines.append(wall[i], wall[i+1]); // Line is stored as two points in array [(x0,y0),(x1,y1)]
+      bdrylines.append([wall[i], wall[i+1]]); // Line is stored as two points in array [[x0,y0],[x1,y1]]
     }
   })
 
@@ -58,18 +57,12 @@ function setup() {
   let rays = [];
   sourcelines.forEach(srcline => {
     bdrylines.forEach(bdryline => {
-      if !line_intersection(srcline, bdryline) {
+      if (line_intersection(srcline, bdryline) == false) {
         rays.append(rays)
       }
     })
   })
 
   // Draw the rays
-  rays.forEach(ray => draw the line)
-
-}
-
-function draw() {
-  // put drawing code here
-  ellipse(50, 50);
+  rays.forEach(ray => line(rays[0][0], rays[0][1], rays[1][0], rays[1][1]))
 }
