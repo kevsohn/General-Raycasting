@@ -1,25 +1,46 @@
 // Setup function is called once
 
 // Global parameters
-var Walls;
-var source;
+// var Walls;
+// var source;
+
+/* let colormap = require('colormap')
+let colors = colormap({
+  colormap: 'jet',
+  nshades: 10,
+  format: 'hex',
+  alpha: 1
+})*/
+
+let ball;
 
 function setup() {
   // // Create the canvas
   createCanvas(720, 400);
+  // canvas.parent('sketch-div');
   background(200);
+
+  var slider = document.getElementById("mass");
+  var output = document.getElementById("demo");
+
+  output.innerHTML = slider.value; //Display the default slider value
+
+  slider.oninput = function() {
+    output.innerHTML = this.value;
+  }
 
   // Create the walls and light source
   // source = lightsource(width / 2, height / 2);
   // Walls = [w1, w2, w3, w4] // Input manually here to desired shape
 
-  // mass = new massive(mass1, (300,200), 10, 10)
-  // ellipse(300, 200, mass.radius, mass.radius)
+  //mass = new massive(mass1, (300,200), 10, 10)
+  ball = new massiveball(100,200,20000,100);
 }
 
 // Draw function is called many times each second
 function draw() {
-
+  //background(255);
+  ball.show();
   /*
   // FORMAT REFERENCE:
   // Point ~ [x0, y1]
@@ -67,4 +88,18 @@ function draw() {
 
   // Draw the rays
   rays.forEach(ray => line(rays[0][0], rays[0][1], rays[1][0], rays[1][1]))*/
+}
+
+class massiveball{
+  constructor(x, y, mass, radius){
+      this.name = name;
+      this.pos = createVector(x,y);
+      this.mass = mass; //kg
+      this.radius = radius; //m
+  }
+
+  show(){
+      fill(255-2*this.mass/255, this.mass/255, this.mass*2/255); //need to integrate colormap somehow
+      circle(this.pos.x, this.pos.y, this.radius);
+  }
 }
