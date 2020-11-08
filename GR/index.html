@@ -8,6 +8,10 @@
   <title>p5.js example</title>
   <script src="../p5.js"></script>
   <script src="../addons/p5.sound.min.js"></script>
+  <script src="Boundary.js"></script>
+  <script src="Beam.js"></script>
+  <script src="Source.js"></script>
+  <script src="MassiveBall.js"></script>
   <script src="sketch.js"></script>
 </head>
 
@@ -18,7 +22,13 @@
 
     <div class="slidecontainer" id="util-container">
       <input type="range" min="1" max="100", value="50" class="slider" id="mass">
-      <p id="demo"> </p>
+      <p id="mass-output"> </p>
+
+      <input type="range" min="1" max="100", value="50" class="slider" id="radius">
+      <p id="radius-output"> </p>
+
+      <input type="range" min="1" max="100", value="50" class="slider" id="density">
+      <p id="density-output"> </p>
     </div>
 
   </main>
