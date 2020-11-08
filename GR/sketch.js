@@ -7,7 +7,7 @@ let src;
 function setup() {
   // Create the canvas
   canvas_h = windowHeight*.8
-  canvas_w = windowWidth*.6
+  canvas_w = windowWidth*.8
   canvas = createCanvas(canvas_w, canvas_h);
   let canvas_div = document.getElementById("sketch-div");
   canvas_div.style.width = `${canvas_w}px`;
@@ -27,11 +27,11 @@ function setup() {
     output.innerHTML = this.value;
   }
 
-  let numBeams = 100;
+  let numBeams = 50;
   src = new Source(width/2, height/2, numBeams);
   for (let i=0; i<5; i++) {
-    const x1 = random(width);
-    const x2 = random(width);
+    const x1 = random(width/2);
+    const x2 = random(width/2);
     const y1 = random(height);
     const y2 = random(height);
     walls[i] = new Boundary(x1, y1, x2, y2);
@@ -39,7 +39,7 @@ function setup() {
   walls.push(new Boundary(0, 0, width, 0));
   walls.push(new Boundary(0, height, width, height));
   walls.push(new Boundary(0, 0, 0, height));
-  walls.push(new Boundary(width, 0, width, height));
+  walls.push(new Boundary(width/2, 0, width/2, height));
 }
 
 // Draw function is called many times each second
@@ -52,6 +52,7 @@ function draw() {
     wall.show();
   }
   src.setBeamDirection(walls);
+  draw3DScene(src.beams)
 }
 
 
@@ -71,7 +72,8 @@ class Source {
   setBeamDirection(walls) {
     for (let beam of this.beams) {
       let pMin = null;
-      let dMin = Infinity;
+      // let dMin = Infinity;
+      let dMin = height;
       for (let wall of walls) {
         const p = beam.getIntersection(wall);
         if (p) {
@@ -82,6 +84,9 @@ class Source {
           }
         }
       }
+      // Record magnitude of the ray connecting to the shortest wall.
+      console.log(`dmin is: ${dMin}`);
+      beam.mag = dMin;
       if (pMin) {
         push();
         stroke(255, 100, 100);
@@ -101,6 +106,7 @@ class Beam {
   constructor(pos, theta) { 
     this.pos = pos;      
     this.dir = p5.Vector.fromAngle(theta);  
+    this.mag = null;
   }  
   
   getIntersection(wall) {
@@ -165,4 +171,32 @@ class Boundary {
     line(this.a.x, this.a.y, this.b.x, this.b.y);
     pop();
   }
+}
+
+
+// 3D 
+// The farther away the ray the smaller it should be and the darker it should be
+
+function draw3DScene(rays) {
+  // Get magnitude of each ray
+  let ray_mags = rays.map(ray => ray.mag); 
+
+  // Find relative heights of rectangles based off magnitude.
+  let max_mag = Math.max(ray_mags);
+  let rect_heights = ray_mags.map(ray_mag => Math.floor(ray_mag / max_mag * height));
+
+  // Find relative brightness of rectanges based off magnitude.
+  rect_flux = ray_mags.map(ray_mag => Math.floor(ray_mag/max_mag * 255));
+  rectMode(CENTER);
+  for (let i = 0; i < rays.length; i++) {
+    rect_height = rect_heights[i]; // POR QUE EST-CE CI EST UN DEFINED?
+    // fill(rect_flux[i]);
+    fill(100);
+    rect(width/2+i, height/2, 1, rect_height);
+    console.log(rect_height[i]); 
+  }
+  // Draw a border in case # rays is small (hardcoding 1 pixel for each ray right now)
+  fill(1);
+  rect(width/2+rays.length, height/2, 1, height);
+
 }
