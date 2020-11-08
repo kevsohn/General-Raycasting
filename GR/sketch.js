@@ -3,7 +3,7 @@
 let walls = [];
 let beam;
 let src;
-let numBeams = 150;
+let numBeams = 100;
 let FOV = 60;
 let ball;
 let ballmoving = false;
@@ -26,10 +26,24 @@ function setup() {
   canvas.parent('sketch-div');
 
   slider = document.getElementById("mass");
-  output = document.getElementById("demo");
+  output = document.getElementById("mass-output");
   output.innerHTML = slider.value; // Display the default slider value
   slider.oninput = function() {
     output.innerHTML = this.value;
+  }
+
+  slider2 = document.getElementById("radius");
+  output2 = document.getElementById("radius-output");
+  output2.innerHTML = slider2.value; // Display the default slider value
+  slider2.oninput = function() {
+    output2.innerHTML = this.value;
+  }
+
+  slider3 = document.getElementById("density");
+  output3 = document.getElementById("density-output");
+  output3.innerHTML = slider3.value; // Display the default slider value
+  slider3.oninput = function() {
+    output3.innerHTML = this.value;
   }
 
   src = new Source(width/2, height/2, numBeams);
@@ -45,7 +59,7 @@ function setup() {
   walls.push(new Boundary(0, 0, 0, height));
   walls.push(new Boundary(width/2, 0, width/2, height));
 
-  ball = new massiveball(100,200,0,slider.value*2);
+  ball = new massiveball(100,200,slider.value*400,slider2.value*2);
 
   document.addEventListener('keypress', function(e){
       //console.log("Key event");
@@ -99,27 +113,33 @@ function setup() {
 
 // Draw function is called many times each second
 function draw() {
-    background(15);
+    background(150);
+
+    // numBeams = slider3.value;
 
     if (angleLarger){
         if (FOV + 15 <= 360){
             FOV += 15;
             angleLarger = false;
-            src.setAngles(FOV/2);
+            src.setAngles(FOV/2, numBeams);
         }
     }
 
     if (angleSmaller){
-        if (FOV - 15 >= 0)
+        if (FOV - 15 >= 0){
             FOV -= 15;
             angleSmaller = false;
-            src.setAngles(FOV/2);
+            src.setAngles(FOV/2, numBeams);
+        }
     }
+
+    src.setAngles(FOV/2, numBeams);
 
     draw3DScene(src.beams) // 3D rendering
 
     ball.show();
     ball.mass = slider.value*400; //slider for ball
+    ball.radius = slider2.value*2;
 
     //src.updateAngle(FOV);
     src.setBeamDirection(walls); // show walls
@@ -148,7 +168,7 @@ class Source {
     this.setAngles(this.angle);
   }
 
-  setAngles(theta){
+  setAngles(theta, num){
     this.beams=[];
     if (theta == 0){
         this.beams.push(new Beam(this.pos, 0.0));
@@ -284,7 +304,8 @@ function draw3DScene(rays) {
 
   // Find available width we have for each ray
   let w = Math.floor(width / 2 / rays.length);
-  // console.log(w);
+  //console.log(w);
+  console.log(rays.length);
   rectMode(CENTER);
   for (let i = 0; i < rays.length; i++) {
     rect_height = 1/ray_mags[i]*1500;
