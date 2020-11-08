@@ -7,7 +7,7 @@ let numBeams = 100;
 let FOV = 60;
 let phi = 0;
 let ball;
-let res = 35;
+let res = 30;
 let ballmoving = false;
 let sourcemoving = false;
 let angleLarger = false;
@@ -103,7 +103,19 @@ function setup() {
 // Draw function is called many times each second
 function draw() {
     background(30);
-    n = slider3.value;
+    for (let wall of walls) { // show walls
+      wall.show();
+    }
+    walls = subset(walls, 0, res);
+
+    createCircleWall(ball.pos.x, ball.pos.y, ball.radius/2, res);
+    ball.mass = slider.value*400; //slider for ball
+    ball.radius = slider2.value*2;
+    ball.show();
+
+    src.setBeamDirection(walls); // show walls
+    src.show(); // show source
+    draw3DScene(src.beams) // 3D rendering
 
     if (angleLarger){
         if (FOV + 15 <= 360){
@@ -133,23 +145,11 @@ function draw() {
       src.setAngles(phi, FOV/2, numBeams);
     }
 
+    n = slider3.value;
     if (n != numBeams){
       numBeams = n;
       src.setAngles(phi, FOV/2, numBeams);
     }
-
-    draw3DScene(src.beams) // 3D rendering
-
-    ball.show();
-    push();
-    walls = subset(walls, 0, res);
-    createCircleWall(ball.pos.x, ball.pos.y, ball.radius/2, res);
-    pop();
-    ball.mass = slider.value*400; //slider for ball
-    ball.radius = slider2.value*2;
-
-    src.setBeamDirection(walls); // show walls
-    src.show(); // show source
    
     if (keyCode === UP_ARROW) {
       FOV -= 15;
@@ -167,10 +167,6 @@ function draw() {
     if (sourcemoving){ // if you are moving the source
         src.updatePosition(mouseX, mouseY);
     }
-
-    for (let wall of walls) { // show walls
-        wall.show();
-    }
 }
 
 // 3D 
@@ -181,24 +177,26 @@ function draw3DScene(rays) {
 
   // Find relative heights of rectangles based off magnitude.
   let max_mag = Math.max(ray_mags);
-  //let rect_heights = ray_mags.map(ray_mag => Math.floor(ray_mag / max_mag * height));
+  // let rect_heights = ray_mags.map(ray_mag => Math.floor(ray_mag / max_mag * height));
 
   // Find relative brightness of rectanges based off magnitude.
   rect_flux = ray_mags.map(ray_mag => Math.floor(ray_mag/height * 255));
 
   // Find available width we have for each ray
   let w = Math.ceil(width / 2 / rays.length);
-  //console.log(w);
-  console.log(rays.length);
+
+  // Change sky and ground colour
   rectMode(CENTER);
-  fill(222,98,27);
+  fill(1,110,150);
+  rect(3/4*width, height/2, width/2, height);
+  fill(50,50,50);
   rect(3/4*width, 3/4*height, width/2, height/2);
+
   for (let i = 0; i < rays.length; i++) {
     rect_height = 1/ray_mags[i]*8000;
     fill(255-rect_flux[i]);
     noStroke();
     rect(width/2+w*i+w/2, height/2, w, rect_height);
-    // console.log(rect_height[i]); 
   }
   // Draw a border in case # rays is small (hardcoding 1 pixel for each ray right now)
   fill(1);

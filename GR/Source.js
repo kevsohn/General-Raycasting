@@ -1,6 +1,6 @@
 class Source {
     constructor(x, y, numBeams) {
-      this.radius = 25;
+      this.radius = 15;
       this.pos = createVector(x, y);
       this.beams = [];
       this.angle = FOV/2;
@@ -8,13 +8,10 @@ class Source {
     }
   
     setAngles(phi, theta, num){
-      //console.log(phi);
       this.beams=[];
       if (theta == 0){
           this.beams.push(new Beam(this.pos, 0.0 + phi));
-      }
-      
-      else{
+      }else{
           for (let i=-theta + phi; i<theta + phi; i+=FOV / num) {
               this.beams.push(new Beam(this.pos, radians(i)));
           }
@@ -28,8 +25,8 @@ class Source {
     setBeamDirection(walls) {
       for (let beam of this.beams) {
         let pMin = null;
-        // let dMin = Infinity;
-        let dMin = height;
+        let dMin = Infinity;
+        //let dMin = height;
         for (let wall of walls) {
           const p = beam.getIntersection(wall);
           if (p) {
@@ -41,7 +38,6 @@ class Source {
           }
         }
         // Record magnitude of the ray connecting to the shortest wall.
-        // console.log(`dmin is: ${dMin}`);
         beam.mag = dMin;
         if (pMin) {
           push();
