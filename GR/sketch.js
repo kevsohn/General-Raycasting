@@ -9,21 +9,31 @@ let src;
 
 function setup() {
   // Create the canvas
-  canvas = createCanvas(720, 400);
+  canvas_h = windowHeight*.8
+  canvas_w = windowWidth*.5
+  canvas = createCanvas(canvas_w, canvas_h);
+  let canvas_div = document.getElementById("sketch-div");
+  canvas_div.style.width = `${canvas_w}px`;
+  canvas_div.style.height = `${canvas_h}px`;
+
+  util_div = document.getElementById("util-container")
+  util_div.style.height = `${canvas_h}px`
+
   canvas.parent('sketch-div');
+  background(200,200,200);
+  stroke(1);
 
   slider = document.getElementById("mass");
   output = document.getElementById("demo");
   output.innerHTML = slider.value; // Display the default slider value
-
-  // Update the current slider value (each time you drag the slider handle)
+  output.innerHTML = slider.value; //Display the default slider value
   slider.oninput = function() {
     output.innerHTML = this.value;
   }
 
+
   // // Create the walls and light source
-  // source = lightsource(width / 2, height / 2);
-  // Walls = [w1, w2, w3, w4] // Input manually here to desired shape
+  // source = new Lightsource(width / 2, height / 2);
 
   wall1 = new Boundary(100, 100, width/2, height/2+50);
   wall2 = new Boundary(width/2, height/2-50, width/2-100, height/2+50);

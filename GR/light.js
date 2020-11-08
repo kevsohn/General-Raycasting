@@ -1,0 +1,7 @@
+class light{
+
+}
+
+function beam(){
+
+}
