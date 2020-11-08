@@ -30,23 +30,23 @@ function setup() {
 
   slider = document.getElementById("mass");
   output = document.getElementById("mass-output");
-  output.innerHTML = slider.value; // Display the default slider value
+  output.innerHTML = `Mass : ${slider.value}`; // Display the default slider value
   slider.oninput = function() {
-    output.innerHTML = this.value;
+    output.innerHTML = `Mass : ${this.value}`;
   }
 
   slider2 = document.getElementById("radius");
   output2 = document.getElementById("radius-output");
-  output2.innerHTML = slider2.value; // Display the default slider value
+  output2.innerHTML = `Radius : ${slider2.value}`; // Display the default slider value
   slider2.oninput = function() {
-    output2.innerHTML = this.value;
+    output2.innerHTML = `Radius :${this.value}`;
   }
 
   slider3 = document.getElementById("density");
   output3 = document.getElementById("density-output");
-  output3.innerHTML = slider3.value; // Display the default slider value
+  output3.innerHTML = `Density : ${slider3.value}`; // Display the default slider value
   slider3.oninput = function() {
-    output3.innerHTML = this.value;
+    output3.innerHTML = `Density : ${this.value}`;
   }
 
   src = new Source(width/2, height/2, numBeams);
@@ -61,7 +61,6 @@ function setup() {
   walls.push(new Boundary(0, height, width, height));
   walls.push(new Boundary(0, 0, 0, height));
   walls.push(new Boundary(width/2, 0, width/2, height));
-  createCircleWall(50, 50, 15, 20);
 
   ball = new massiveball(100,200,slider.value*400,slider2.value*2);
 
@@ -203,6 +202,10 @@ function draw3DScene(rays) {
   //console.log(w);
   console.log(rays.length);
   rectMode(CENTER);
+  fill(1,8,46);
+  rect(width*3/4,height/2, width/2, height);
+  fill(1,28,1);
+  rect(width*3/4,height*3/4, width/2, height/2);
   for (let i = 0; i < rays.length; i++) {
     rect_height = 1/ray_mags[i]*8000;
     fill(255-rect_flux[i]);
@@ -213,26 +216,4 @@ function draw3DScene(rays) {
   // Draw a border in case # rays is small (hardcoding 1 pixel for each ray right now)
   fill(1);
   rect(width/2+w*rays.length + w/2, height/2, 1, height);
-}
-
-function createCircleWall(x0, y0, r, res) {
-
-  // Generate the points on the circle with the given resolution.
-  let thetas = [];
-  for (let i = 0; i<360; i+=360/res) {
-    thetas.push(i);
-  }
-  thetas = thetas.map(theta => theta * Math.PI / 180);
-  let x = thetas.map(theta => x0 + r*Math.cos(theta));
-  let y = thetas.map(theta => y0 + r*Math.sin(theta));
-
-
-  // Connect all the neighboring points on the circle with a boundary
-  boundaries = [];
-  for (let i = 0; i < x.length-1; i++) {
-    boundaries.push(new Boundary(x[i], y[i], x[i+1], y[i+1]));
-  }
-  // Don't forget to connect the last point to the first point!
-  boundaries.push(new Boundary(x[x.length-1],y[y.length-1],x[0],y[0]));
-  walls = walls.concat(boundaries);
 }
