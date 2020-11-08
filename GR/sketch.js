@@ -3,30 +3,46 @@
 // Global parameters
 // var Walls;
 // var source;
-let wall;
-let light;
-let ball;
+let walls;
+let beam;
+let src;
 
 let ballmoving = false;
 
 function setup() {
   // Create the canvas
-  canvas = createCanvas(720, 400);
+  canvas_h = 1000*.8
+  canvas_w = 1000*.5
+  canvas = createCanvas(canvas_w, canvas_h);
+  let canvas_div = document.getElementById("sketch-div");
+  canvas_div.style.width = `${canvas_w}px`;
+  canvas_div.style.height = `${canvas_h}px`;
+
+  util_div = document.getElementById("util-container")
+  util_div.style.height = `${canvas_h}px`
+
   canvas.parent('sketch-div');
+  background(200,200,200);
+  stroke(1);
 
   slider = document.getElementById("mass");
   output = document.getElementById("demo");
   output.innerHTML = slider.value; // Display the default slider value
+  output.innerHTML = slider.value; //Display the default slider value
   slider.oninput = function() {
     output.innerHTML = this.value;
   }
 
-  // // Create the walls and light source
-  // source = lightsource(width / 2, height / 2);
-  // Walls = [w1, w2, w3, w4] // Input manually here to desired shape
 
-  wall = new Boundary(width/2, height/2-50, width/2, height/2+50);
-  light = new LightSource(100, height/2);
+  // // Create the walls and light source
+  // source = new Lightsource(width / 2, height / 2);
+
+  wall1 = new Boundary(100, 100, width/2, height/2+50);
+  wall2 = new Boundary(width/2, height/2-50, width/2-100, height/2+50);
+  //beam = new Beam(100, height/2);
+  let numBeams = 100;
+  src = new Source(width/2, height/2, numBeams);
+
   ball = new massiveball(100,200,0,slider.value*2);
 
   document.addEventListener('mousedown', function(e){
@@ -41,15 +57,17 @@ function setup() {
 
   document.addEventListener('mouseup', function(e){
     ballmoving = false;
-  })
 }
 
 // Draw function is called many times each second
 function draw() { 
   // put drawing code here
-  background(255);
-  wall.show();
-  ball.show();
+  background(230);
+  src.pos.x = mouseX;
+  src.pos.y = mouseY;
+  src.show();
+  wall1.show();
+  wall2.show();
   ball.mass = slider.value*400;
 
   if (ballmoving){
@@ -57,12 +75,15 @@ function draw() {
     ball.pos.y = mouseY;
   }
 
-  //ball.radius = slider.value*2;
-  light.show();
-  light.look(mouseX, mouseY);
+  //beam.show();
+  //beam.lookAt(mouseX, mouseY);
 
-  let p = light.intersect(wall);
-  //console.log(p);
+  //let p1 = beam.intersect(wall1);
+  for (let beam of src.beams) {
+    let p1 = beam.getIntersectionParams(wall1);
+    //let p2 = beam.intersect(wall2);
+  }
+  //console.log(p1);
 
   // // FORMAT REFERENCE:
   // // Point ~ [x0, y1]
@@ -113,13 +134,14 @@ function draw() {
   // rays.forEach(ray => line(rays[0][0], rays[0][1], rays[1][0], rays[1][1]))
 }
 
-class LightSource {
-  constructor(x, y) { 
-    this.pos = createVector(x, y);      
-    this.dir = createVector(1, 0);    
+class Beam {
+  constructor(pos, theta) { 
+    this.pos = pos;      
+    this.dir = p5.Vector.fromAngle(theta);  
+    this.int = false;
   }  
   
-  intersect(wall) {
+  getIntersectionParams(wall) {
     const x1 = wall.a.x;
     const y1 = wall.a.y;
     const x2 = wall.b.x;
@@ -139,24 +161,66 @@ class LightSource {
     const u = -((x1-x2)*(y1-y3) - (y1-y2)*(x1-x3)) / denom;
       
     if (u > 0 && t > 0 && t < 1) {
-      return true;
+      this.p = createVector();
+      this.p.x = x1 + t*(x2-x1);
+      this.p.y = y1 + t*(y2-y1);
+      this.int = true;
+      return this.p;
     }else {
+      this.int = false;
       return;
     }
   }
 
-  look(x, y) {
+  lookAt(x, y) {
     this.dir.x = x - this.pos.x;
     this.dir.y = y - this.pos.y;
     this.dir.normalize();
   }
 
   show() {
-      stroke(255,200,100);
+      stroke(255, 200, 100);
       push();
+      strokeWeight(1);
       translate(this.pos.x, this.pos.y);
-      line(0, 0, this.dir.x*10, this.dir.y*10);
+      if (!this.int) {
+        line(0, 0, this.dir.x*500, this.dir.y*500);
+      }else {
+        line(0, 0, this.p.x-this.pos.x, this.p.y-this.pos.y);
+      }
       pop();
+  }
+}
+
+class Source {
+  constructor(x, y, numBeams) {
+    this.pos = createVector(x, y);
+    this.beams = [];
+    for (let i=0; i<360; i+=360./numBeams) {
+      this.beams.push(new Beam(this.pos, radians(i)));
+    }
+  }
+
+  updatePos(x, y) {
+    this.pos.set(x, y);    
+  }
+
+  getClosestIntersection(walls) {
+
+  }
+
+  setBeamDirection() {
+    for (let beam of this.beams) {
+      const p = beam.getIntersectionParams();
+    }
+  }
+
+  show() {
+    fill(0);
+    circle(this.pos.x, this.pos.y, 10);
+    for (let beam of this.beams) {
+      beam.show();
+    }
   }
 }
 
@@ -168,21 +232,9 @@ class Boundary {
 
   show() {
       stroke(0);
+      push();
       strokeWeight(5);
       line(this.a.x, this.a.y, this.b.x, this.b.y);
-  }
-}
-
-class massiveball{
-  constructor(x, y, mass, radius){
-      this.name = name;
-      this.pos = createVector(x,y);
-      this.mass = mass; //kg
-      this.radius = radius; //m
-  }
-
-  show(){
-      fill(255-2*this.mass/255, this.mass/255, this.mass*2/255); //need to integrate colormap somehow
-      circle(this.pos.x, this.pos.y, this.radius);
+      pop();
   }
 }
