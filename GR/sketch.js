@@ -28,7 +28,7 @@ function setup() {
   }
 
   let numBeams = 50;
-  src = new Source(width/2, height/2, numBeams);
+  src = new Source(width/2, height/2, 80, numBeams);
   for (let i=0; i<5; i++) {
     const x1 = random(width/2);
     const x2 = random(width/2);
@@ -57,10 +57,10 @@ function draw() {
 
 
 class Source {
-  constructor(x, y, numBeams) {
+  constructor(x, y, angle, numBeams) {
     this.pos = createVector(x, y);
     this.beams = [];
-    for (let i=0; i<360; i+=360./numBeams) {
+    for (let i=0; i<angle; i+=angle/numBeams) {
       this.beams.push(new Beam(this.pos, radians(i)));
     }
   }
@@ -172,7 +172,6 @@ class Boundary {
     pop();
   }
 }
-
 
 // 3D 
 // The farther away the ray the smaller it should be and the darker it should be
