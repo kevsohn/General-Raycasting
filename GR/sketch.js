@@ -3,7 +3,8 @@
 let walls = [];
 let beam;
 let src;
-let numBeams = 50;
+let numBeams = 150;
+let FOV = 60;
 
 function setup() {
   // Create the canvas
@@ -60,7 +61,7 @@ class Source {
   constructor(x, y, numBeams) {
     this.pos = createVector(x, y);
     this.beams = [];
-    for (let i=0; i<360; i+=360./numBeams) {
+    for (let i=0; i<FOV; i+=FOV / numBeams) {
       this.beams.push(new Beam(this.pos, radians(i)));
     }
   }
@@ -189,12 +190,12 @@ function draw3DScene(rays) {
   rect_flux = ray_mags.map(ray_mag => Math.floor(ray_mag/height * 255));
 
   // Find available width we have for each ray
-  let w = Math.floor(width / 2 / numBeams);
+  let w = Math.floor(width / 2 / rays.length);
   console.log(w);
   rectMode(CENTER);
   for (let i = 0; i < rays.length; i++) {
-    rect_height = ray_mags[i];
-    fill(rect_flux[i]);
+    rect_height = 1/ray_mags[i]*1500;
+    fill(255-rect_flux[i]);
     noStroke();
     rect(width/2+w*i, height/2, w, rect_height);
     console.log(rect_height[i]); 
