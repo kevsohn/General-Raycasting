@@ -6,14 +6,23 @@ let src;
 
 function setup() {
   // Create the canvas
-  canvas = createCanvas(600, 400);
+  canvas_h = windowHeight*.8
+  canvas_w = windowWidth*.6
+  canvas = createCanvas(canvas_w, canvas_h);
+  let canvas_div = document.getElementById("sketch-div");
+  canvas_div.style.width = `${canvas_w}px`;
+  canvas_div.style.height = `${canvas_h}px`;
+
+  util_div = document.getElementById("util-container")
+  util_div.style.height = `${canvas_h}px`
+
   canvas.parent('sketch-div');
+  background(200,200,200);
+  stroke(1);
 
   slider = document.getElementById("mass");
   output = document.getElementById("demo");
   output.innerHTML = slider.value; // Display the default slider value
-
-  // Update the current slider value (each time you drag the slider handle)
   slider.oninput = function() {
     output.innerHTML = this.value;
   }
@@ -35,7 +44,6 @@ function setup() {
 
 // Draw function is called many times each second
 function draw() {
-  // put drawing code here
   background(230);
   src.updatePosition(mouseX, mouseY);
   src.show();
