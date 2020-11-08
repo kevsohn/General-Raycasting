@@ -5,8 +5,10 @@ class Boundary {
     }
   
     show() {
-        stroke(0);
-        strokeWeight(5);
-        line(this.a.x, this.a.y, this.b.x, this.b.y);
+      stroke(150);
+      push();
+      strokeWeight(5);
+      line(this.a.x, this.a.y, this.b.x, this.b.y);
+      pop();
     }
   }

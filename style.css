@@ -18,6 +18,7 @@ main {
 
 p {
   font-weight: 10;
+  color: rgb(223, 212, 212);
 }
 
 body {
@@ -28,11 +29,11 @@ body {
 #util-container {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
   align-content: space-around;
   width: 20px;
   flex-grow: 2;
-  border: 1px solid red;
 }
 
 .slider {
