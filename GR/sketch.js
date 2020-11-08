@@ -77,7 +77,7 @@ function setup() {
 
 // Draw function is called many times each second
 function draw() {
-  background(230);
+  background(15);
   // src.updatePosition(mouseX, mouseY);
   // src.show();
 
@@ -100,7 +100,6 @@ function draw() {
     wall.show();
   }
 }
-
 
 class Source {
   constructor(x, y, numBeams) {
@@ -132,7 +131,7 @@ class Source {
       }
       if (pMin) {
         push();
-        stroke(255, 100, 100);
+        stroke(255, 225, 125);
         line(this.pos.x, this.pos.y, pMin.x, pMin.y);
         pop();
       }
@@ -205,7 +204,7 @@ class Boundary {
   }
 
   show() {
-    stroke(0);
+    stroke(150);
     push();
     strokeWeight(5);
     line(this.a.x, this.a.y, this.b.x, this.b.y);
