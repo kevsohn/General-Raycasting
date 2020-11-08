@@ -8,6 +8,8 @@ let FOV = 60;
 let ball;
 let ballmoving = false;
 let sourcemoving = false;
+let angleLarger = false;
+let angleSmaller = false;
 
 function setup() {
   // Create the canvas
@@ -45,6 +47,30 @@ function setup() {
 
   ball = new massiveball(100,200,0,slider.value*2);
 
+  document.addEventListener('keypress', function(e){
+      //console.log("Key event");
+      if (e.code == 'KeyW'){
+          print("W");
+          angleLarger = true;
+      }
+
+      else if (e.code == 'KeyS'){
+          print("S")
+          angleSmaller = true;
+      }
+  })
+
+  /*document.addEventListener('keyup', function(e){
+    //console.log("Key event");
+    if (e.code == 'KeyW'){
+        angleLarger = false;
+    }
+
+    else if (e.code == 'KeyS'){
+        angleSmaller = false;
+    }
+  })*/
+
   document.addEventListener('mousedown', function(e){
     dist_b = Math.sqrt((mouseX - ball.pos.x)**2 + (mouseY - ball.pos.y)**2);
     dist_src = Math.sqrt((mouseX - src.pos.x)**2 + (mouseY - src.pos.y)**2);
@@ -75,11 +101,27 @@ function setup() {
 function draw() {
     background(15);
 
+    if (angleLarger){
+        if (FOV + 15 <= 360){
+            FOV += 15;
+            angleLarger = false;
+            src.setAngles(FOV/2);
+        }
+    }
+
+    if (angleSmaller){
+        if (FOV - 15 >= 0)
+            FOV -= 15;
+            angleSmaller = false;
+            src.setAngles(FOV/2);
+    }
+
     draw3DScene(src.beams) // 3D rendering
 
     ball.show();
     ball.mass = slider.value*400; //slider for ball
 
+    //src.updateAngle(FOV);
     src.setBeamDirection(walls); // show walls
     src.show(); // show source
 
@@ -102,8 +144,20 @@ class Source {
     this.radius = 25;
     this.pos = createVector(x, y);
     this.beams = [];
-    for (let i=0; i<FOV; i+=FOV / numBeams) {
-      this.beams.push(new Beam(this.pos, radians(i)));
+    this.angle = FOV/2;
+    this.setAngles(this.angle);
+  }
+
+  setAngles(theta){
+    this.beams=[];
+    if (theta == 0){
+        this.beams.push(new Beam(this.pos, 0.0));
+    }
+    
+    else{
+        for (let i=-theta; i<theta; i+=FOV / numBeams) {
+            this.beams.push(new Beam(this.pos, radians(i)));
+        }
     }
   }
 
@@ -127,7 +181,7 @@ class Source {
         }
       }
       // Record magnitude of the ray connecting to the shortest wall.
-      console.log(`dmin is: ${dMin}`);
+      // console.log(`dmin is: ${dMin}`);
       beam.mag = dMin;
       if (pMin) {
         push();
@@ -230,18 +284,18 @@ function draw3DScene(rays) {
 
   // Find available width we have for each ray
   let w = Math.floor(width / 2 / rays.length);
-  console.log(w);
+  // console.log(w);
   rectMode(CENTER);
   for (let i = 0; i < rays.length; i++) {
     rect_height = 1/ray_mags[i]*1500;
     fill(255-rect_flux[i]);
     noStroke();
-    rect(width/2+w*i, height/2, w, rect_height);
-    console.log(rect_height[i]); 
+    rect(width/2+w*i+w/2, height/2, w, rect_height);
+    // console.log(rect_height[i]); 
   }
   // Draw a border in case # rays is small (hardcoding 1 pixel for each ray right now)
   fill(1);
-  rect(width/2+w*rays.length, height/2, 1, height);
+  rect(width/2+w*rays.length + w/2, height/2, 1, height);
 }
 
 class massiveball{
