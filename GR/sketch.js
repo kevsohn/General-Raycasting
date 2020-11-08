@@ -5,11 +5,14 @@ let beam;
 let src;
 let numBeams = 100;
 let FOV = 60;
+let phi = 0;
 let ball;
 let ballmoving = false;
 let sourcemoving = false;
 let angleLarger = false;
 let angleSmaller = false;
+let rotateRight = false;
+let rotateLeft = false;
 
 function setup() {
   // Create the canvas
@@ -72,6 +75,16 @@ function setup() {
           print("S")
           angleSmaller = true;
       }
+
+      else if (e.code == 'KeyA'){
+        print("A")
+        rotateLeft = true;
+      }
+
+      else if (e.code == 'KeyD'){
+        print("D")
+        rotateRight = true;
+    }
   })
 
   document.addEventListener('mousedown', function(e){
@@ -110,7 +123,7 @@ function draw() {
         if (FOV + 15 <= 360){
             FOV += 15;
             angleLarger = false;
-            src.setAngles(FOV/2, numBeams);
+            src.setAngles(phi, FOV/2, numBeams);
         }
     }
 
@@ -118,13 +131,29 @@ function draw() {
         if (FOV - 15 >= 0){
             FOV -= 15;
             angleSmaller = false;
-            src.setAngles(FOV/2, numBeams);
+            src.setAngles(phi, FOV/2, numBeams);
         }
+    }
+
+    if (rotateLeft){
+      //if (phi + 15 <= 360){
+      phi += 15;
+      rotateLeft = false;
+      src.setAngles(phi, FOV/2, numBeams);
+      //}
+    }
+
+    if (rotateRight){
+      //if (phi - 15 >= 360){
+      phi -= 15;
+      rotateRight = false;
+      src.setAngles(phi, FOV/2, numBeams);
+      //}
     }
 
     if (n != numBeams){
       numBeams = n;
-      src.setAngles(FOV/2, numBeams);
+      src.setAngles(phi, FOV/2, numBeams);
     }
 
     draw3DScene(src.beams) // 3D rendering
