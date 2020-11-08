@@ -1,14 +1,14 @@
 
 #sketch-div {
-  border: 8px solid white;
+  border: 5px solid white;
   border-radius: 1%;
 }
 
 main {
   width: 100vw;
   height: 100vh;
-  background-color: #111;
-  padding: 10px;
+  background-color: rgb(12, 12, 19);
+  padding: 0px;
   display: flex;
   justify-content: flex-start;
   align-items: center;
