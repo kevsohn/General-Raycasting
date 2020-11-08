@@ -1,17 +1,24 @@
 // Setup function is called once
-
 // Global parameters
-// var Walls;
-// var source;
-let wall;
-let light;
+let walls = [];
+let beam;
+let src;
 let ball;
 
 let ballmoving = false;
 
 function setup() {
   // Create the canvas
-  canvas = createCanvas(720, 400);
+  canvas_h = windowHeight*.8
+  canvas_w = windowWidth*.6
+  canvas = createCanvas(canvas_w, canvas_h);
+  let canvas_div = document.getElementById("sketch-div");
+  canvas_div.style.width = `${canvas_w}px`;
+  canvas_div.style.height = `${canvas_h}px`;
+
+  util_div = document.getElementById("util-container")
+  util_div.style.height = `${canvas_h}px`
+
   canvas.parent('sketch-div');
 
   slider = document.getElementById("mass");
@@ -21,12 +28,20 @@ function setup() {
     output.innerHTML = this.value;
   }
 
-  // // Create the walls and light source
-  // source = lightsource(width / 2, height / 2);
-  // Walls = [w1, w2, w3, w4] // Input manually here to desired shape
+  let numBeams = 100;
+  src = new Source(width/2, height/2, numBeams);
+  for (let i=0; i<5; i++) {
+    const x1 = random(width);
+    const x2 = random(width);
+    const y1 = random(height);
+    const y2 = random(height);
+    walls[i] = new Boundary(x1, y1, x2, y2);
+  }
+  walls.push(new Boundary(0, 0, width, 0));
+  walls.push(new Boundary(0, height, width, height));
+  walls.push(new Boundary(0, 0, 0, height));
+  walls.push(new Boundary(width, 0, width, height));
 
-  wall = new Boundary(width/2, height/2-50, width/2, height/2+50);
-  light = new LightSource(100, height/2);
   ball = new massiveball(100,200,0,slider.value*2);
 
   document.addEventListener('mousedown', function(e){
@@ -45,10 +60,11 @@ function setup() {
 }
 
 // Draw function is called many times each second
-function draw() { 
-  // put drawing code here
-  background(255);
-  wall.show();
+function draw() {
+  background(230);
+  src.updatePosition(mouseX, mouseY);
+  src.show();
+
   ball.show();
   ball.mass = slider.value*400;
 
@@ -57,74 +73,66 @@ function draw() {
     ball.pos.y = mouseY;
   }
 
-  //ball.radius = slider.value*2;
-  light.show();
-  light.look(mouseX, mouseY);
-
-  let p = light.intersect(wall);
-  //console.log(p);
-
-  // // FORMAT REFERENCE:
-  // // Point ~ [x0, y1]
-  // // Line ~ [[x0,y0],[x1,y1]] == [point1, point2]
-
-
-  // // Initial list of points to draw lines to
-  // points = []
-  // Walls.forEach(wall => {
-  //   wall.forEach(point => {
-  //     points.append([point.x, point.y])
-  //   })
-  // })
-
-  // // Okay now we have the points we want so if we wanted rays to all the points we could do
-  // // line(point.x, point.y, source.x, source.y) for each point.
-  // // First though we want to remove points s.t. the ray to those points already passes through 
-  // // a wall
-
-  // // So lets collect all the lines to make this task easier.
-  // bdrylines = []
-  // Walls.forEach(wall => {
-  //   for (var i = 0; i < wall.length-1; i++) {
-  //     bdrylines.append([wall[i], wall[i+1]]); // Line is stored as two points in array [[x0,y0],[x1,y1]]
-  //   }
-  // })
-
-  // // Ok now lets get the lines from the source to the points
-
-  // sourcelines = []
-  // points.forEach(point => {
-  //   sourcelines.append([(source.x, source.y), (point.x, point.y)])
-  // })
-
-  // // Great so now lets eliminate the points we dont need by checking if a line to one of 
-  // // the points crosses a wall
-
-  // let rays = [];
-  // sourcelines.forEach(srcline => {
-  //   bdrylines.forEach(bdryline => {
-  //     if (line_intersection(srcline, bdryline) == false) {
-  //       rays.append(rays)
-  //     }
-  //   })
-  // })
-
-  // // Draw the rays
-  // rays.forEach(ray => line(rays[0][0], rays[0][1], rays[1][0], rays[1][1]))
+  for (let wall of walls) {
+    wall.show();
+  }
+  src.setBeamDirection(walls);
 }
 
-class LightSource {
-  constructor(x, y) { 
-    this.pos = createVector(x, y);      
-    this.dir = createVector(1, 0);    
+
+class Source {
+  constructor(x, y, numBeams) {
+    this.pos = createVector(x, y);
+    this.beams = [];
+    for (let i=0; i<360; i+=360./numBeams) {
+      this.beams.push(new Beam(this.pos, radians(i)));
+    }
+  }
+
+  updatePosition(x, y) {
+    this.pos.set(x, y);    
+  }
+
+  setBeamDirection(walls) {
+    for (let beam of this.beams) {
+      let pMin = null;
+      let dMin = Infinity;
+      for (let wall of walls) {
+        const p = beam.getIntersection(wall);
+        if (p) {
+          const d = p5.Vector.dist(this.pos, p);
+          if (d < dMin) {
+            dMin = d;
+            pMin = p;
+          }
+        }
+      }
+      if (pMin) {
+        push();
+        stroke(255, 100, 100);
+        line(this.pos.x, this.pos.y, pMin.x, pMin.y);
+        pop();
+      }
+    }
+  }
+
+  show() {
+    fill(255, 200, 100);
+    circle(this.pos.x, this.pos.y, 5);
+  }
+}
+
+class Beam {
+  constructor(pos, theta) { 
+    this.pos = pos;      
+    this.dir = p5.Vector.fromAngle(theta);  
   }  
   
-  intersect(wall) {
+  getIntersection(wall) {
     const x1 = wall.a.x;
     const y1 = wall.a.y;
     const x2 = wall.b.x;
     const y2 = wall.b.y;
-
     const x3 = this.pos.x;
     const y3 = this.pos.y;
     const x4 = this.pos.x + this.dir.x;
@@ -139,7 +147,10 @@ class LightSource {
     const u = -((x1-x2)*(y1-y3) - (y1-y2)*(x1-x3)) / denom;
       
     if (u > 0 && t > 0 && t < 1) {
-      return true;
+      this.p = createVector();
+      this.p.x = x1 + t*(x2-x1);
+      this.p.y = y1 + t*(y2-y1);
+      return this.p;
     }else {
       return;
     }
@@ -155,7 +166,11 @@ class LightSource {
       stroke(255,200,100);
       push();
       translate(this.pos.x, this.pos.y);
-      line(0, 0, this.dir.x*10, this.dir.y*10);
+      if (!this.p) {
+        line(0, 0, this.dir.x*500, this.dir.y*500);
+      }else {
+        line(0, 0, this.p.x-this.pos.x, this.p.y-this.pos.y);
+      }
       pop();
   }
 }
@@ -167,22 +182,24 @@ class Boundary {
   }
 
   show() {
-      stroke(0);
-      strokeWeight(5);
-      line(this.a.x, this.a.y, this.b.x, this.b.y);
+    stroke(0);
+    push();
+    strokeWeight(5);
+    line(this.a.x, this.a.y, this.b.x, this.b.y);
+    pop();
   }
 }
 
 class massiveball{
-  constructor(x, y, mass, radius){
-      this.name = name;
-      this.pos = createVector(x,y);
-      this.mass = mass; //kg
-      this.radius = radius; //m
-  }
-
-  show(){
-      fill(255-2*this.mass/255, this.mass/255, this.mass*2/255); //need to integrate colormap somehow
-      circle(this.pos.x, this.pos.y, this.radius);
-  }
+    constructor(x, y, mass, radius){
+        this.name = name;
+        this.pos = createVector(x,y);
+        this.mass = mass; //kg
+        this.radius = radius; //m
+    }
+  
+    show(){
+        fill(255-2*this.mass/255, this.mass/255, this.mass*2/255); //need to integrate colormap somehow
+        circle(this.pos.x, this.pos.y, this.radius);
+    }
 }
