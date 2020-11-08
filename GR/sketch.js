@@ -3,6 +3,8 @@
 let walls = [];
 let beam;
 let src;
+let numBeams = 150;
+let FOV = 60;
 
 function setup() {
   // Create the canvas
@@ -27,8 +29,7 @@ function setup() {
     output.innerHTML = this.value;
   }
 
-  let numBeams = 50;
-  src = new Source(width/2, height/2, 80, numBeams);
+  src = new Source(width/2, height/2, FOV, numBeams);
   for (let i=0; i<5; i++) {
     const x1 = random(width/2);
     const x2 = random(width/2);
@@ -57,10 +58,10 @@ function draw() {
 
 
 class Source {
-  constructor(x, y, angle, numBeams) {
+  constructor(x, y, FOV, numBeams) {
     this.pos = createVector(x, y);
     this.beams = [];
-    for (let i=0; i<angle; i+=angle/numBeams) {
+    for (let i=0; i<FOV; i+=FOV / numBeams) {
       this.beams.push(new Beam(this.pos, radians(i)));
     }
   }
@@ -182,20 +183,24 @@ function draw3DScene(rays) {
 
   // Find relative heights of rectangles based off magnitude.
   let max_mag = Math.max(ray_mags);
-  let rect_heights = ray_mags.map(ray_mag => Math.floor(ray_mag / max_mag * height));
+  //let rect_heights = ray_mags.map(ray_mag => Math.floor(ray_mag / max_mag * height));
 
   // Find relative brightness of rectanges based off magnitude.
-  rect_flux = ray_mags.map(ray_mag => Math.floor(ray_mag/max_mag * 255));
+  rect_flux = ray_mags.map(ray_mag => Math.floor(ray_mag/height * 255));
+
+  // Find available width we have for each ray
+  let w = Math.floor(width / 2 / rays.length);
+  console.log(w);
   rectMode(CENTER);
   for (let i = 0; i < rays.length; i++) {
-    rect_height = rect_heights[i]; // POR QUE EST-CE CI EST UN DEFINED?
-    // fill(rect_flux[i]);
-    fill(100);
-    rect(width/2+i, height/2, 1, rect_height);
+    rect_height = 1/ray_mags[i]*2500;
+    fill(255-rect_flux[i]);
+    noStroke();
+    rect(width/2+w*i, height/2, w, rect_height);
     console.log(rect_height[i]); 
   }
   // Draw a border in case # rays is small (hardcoding 1 pixel for each ray right now)
   fill(1);
-  rect(width/2+rays.length, height/2, 1, height);
+  rect(width/2+w*rays.length, height/2, 1, height);
 
 }
