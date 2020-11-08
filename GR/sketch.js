@@ -5,6 +5,9 @@ let beam;
 let src;
 let numBeams = 150;
 let FOV = 60;
+let ball;
+let ballmoving = false;
+let sourcemoving = false;
 
 function setup() {
   // Create the canvas
@@ -19,8 +22,6 @@ function setup() {
   util_div.style.height = `${canvas_h}px`
 
   canvas.parent('sketch-div');
-  background(200,200,200);
-  stroke(1);
 
   slider = document.getElementById("mass");
   output = document.getElementById("demo");
@@ -41,13 +42,59 @@ function setup() {
   walls.push(new Boundary(0, height, width, height));
   walls.push(new Boundary(0, 0, 0, height));
   walls.push(new Boundary(width/2, 0, width/2, height));
+
+  ball = new massiveball(100,200,0,slider.value*2);
+
+  document.addEventListener('mousedown', function(e){
+    dist_b = Math.sqrt((mouseX - ball.pos.x)**2 + (mouseY - ball.pos.y)**2);
+    dist_src = Math.sqrt((mouseX - src.pos.x)**2 + (mouseY - src.pos.y)**2);
+    //console.log(dist_src)
+    if (dist_b < ball.radius){
+      // console.log('mouse down');
+      // return;
+      console.log('ball moving');
+      ballmoving = true;
+    }
+
+    if (dist_src < src.radius){
+        console.log('source moving');
+        sourcemoving = true;
+    }
+    // console.log('mouse down on ball');
+    // ballmoving = true;
+  })
+
+  document.addEventListener('mouseup', function(e){
+    if (ballmoving){
+        ballmoving = false;
+    }
+    
+    if (sourcemoving){
+        sourcemoving = false;
+    }
+  })
 }
 
 // Draw function is called many times each second
 function draw() {
-  background(230);
-  src.updatePosition(mouseX, mouseY);
+  background(15);
+  // src.updatePosition(mouseX, mouseY);
+  // src.show();
+
+  src.setBeamDirection(walls);
   src.show();
+
+  ball.show();
+  ball.mass = slider.value*400;
+
+  if (ballmoving){
+    ball.pos.x = mouseX;
+    ball.pos.y = mouseY;
+  }
+
+  if (sourcemoving){
+      src.updatePosition(mouseX, mouseY);
+  }
 
   for (let wall of walls) {
     wall.show();
@@ -56,9 +103,9 @@ function draw() {
   draw3DScene(src.beams)
 }
 
-
 class Source {
   constructor(x, y, numBeams) {
+    this.radius = 25;
     this.pos = createVector(x, y);
     this.beams = [];
     for (let i=0; i<FOV; i+=FOV / numBeams) {
@@ -90,7 +137,7 @@ class Source {
       beam.mag = dMin;
       if (pMin) {
         push();
-        stroke(255, 100, 100);
+        stroke(255, 225, 125);
         line(this.pos.x, this.pos.y, pMin.x, pMin.y);
         pop();
       }
@@ -98,8 +145,8 @@ class Source {
   }
 
   show() {
-    fill(255, 200, 100);
-    circle(this.pos.x, this.pos.y, 5);
+    fill(255, 194, 24);
+    circle(this.pos.x, this.pos.y, this.radius);
   }
 }
 
@@ -134,21 +181,19 @@ class Beam {
       this.p.y = y1 + t*(y2-y1);
       return this.p;
     }else {
-      this.int = false;
       return;
     }
   }
 
-  lookAt(x, y) {
+  look(x, y) {
     this.dir.x = x - this.pos.x;
     this.dir.y = y - this.pos.y;
     this.dir.normalize();
   }
 
   show() {
-      stroke(255, 200, 100);
+      stroke(255,200,100);
       push();
-      strokeWeight(1);
       translate(this.pos.x, this.pos.y);
       if (!this.p) {
         line(0, 0, this.dir.x*500, this.dir.y*500);
@@ -166,7 +211,7 @@ class Boundary {
   }
 
   show() {
-    stroke(0);
+    stroke(150);
     push();
     strokeWeight(5);
     line(this.a.x, this.a.y, this.b.x, this.b.y);
@@ -203,5 +248,19 @@ function draw3DScene(rays) {
   // Draw a border in case # rays is small (hardcoding 1 pixel for each ray right now)
   fill(1);
   rect(width/2+w*rays.length, height/2, 1, height);
+}
 
+class massiveball{
+    constructor(x, y, mass, radius){
+        this.name = name;
+        this.pos = createVector(x,y);
+        this.mass = mass; //kg
+        this.radius = radius; //m
+    }
+  
+  
+    show(){
+        fill(255-2*this.mass/255, this.mass/255, this.mass*2/255); //need to integrate colormap somehow
+        circle(this.pos.x, this.pos.y, this.radius);
+    }
 }
