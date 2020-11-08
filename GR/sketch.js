@@ -6,6 +6,7 @@ let src;
 let ball;
 
 let ballmoving = false;
+let sourcemoving = false;
 
 function setup() {
   // Create the canvas
@@ -45,24 +46,42 @@ function setup() {
   ball = new massiveball(100,200,0,slider.value*2);
 
   document.addEventListener('mousedown', function(e){
-    distance = Math.sqrt((mouseX - ball.pos.x)**2 + (mouseY - ball.pos.y)**2);
-    if (ball.radius < distance){
-      console.log('mouse down');
-      return;
+    dist_b = Math.sqrt((mouseX - ball.pos.x)**2 + (mouseY - ball.pos.y)**2);
+    dist_src = Math.sqrt((mouseX - src.pos.x)**2 + (mouseY - src.pos.y)**2);
+    //console.log(dist_src)
+    if (dist_b < ball.radius){
+      // console.log('mouse down');
+      // return;
+      console.log('ball moving');
+      ballmoving = true;
     }
-    console.log('mouse down on ball');
-    ballmoving = true;
+
+    if (dist_src < src.radius){
+        console.log('source moving');
+        sourcemoving = true;
+    }
+    // console.log('mouse down on ball');
+    // ballmoving = true;
   })
 
   document.addEventListener('mouseup', function(e){
-    ballmoving = false;
+    if (ballmoving){
+        ballmoving = false;
+    }
+    
+    if (sourcemoving){
+        sourcemoving = false;
+    }
   })
 }
 
 // Draw function is called many times each second
 function draw() {
   background(230);
-  src.updatePosition(mouseX, mouseY);
+  // src.updatePosition(mouseX, mouseY);
+  // src.show();
+
+  src.setBeamDirection(walls);
   src.show();
 
   ball.show();
@@ -73,15 +92,19 @@ function draw() {
     ball.pos.y = mouseY;
   }
 
+  if (sourcemoving){
+      src.updatePosition(mouseX, mouseY);
+  }
+
   for (let wall of walls) {
     wall.show();
   }
-  src.setBeamDirection(walls);
 }
 
 
 class Source {
   constructor(x, y, numBeams) {
+    this.radius = 25;
     this.pos = createVector(x, y);
     this.beams = [];
     for (let i=0; i<360; i+=360./numBeams) {
@@ -117,8 +140,8 @@ class Source {
   }
 
   show() {
-    fill(255, 200, 100);
-    circle(this.pos.x, this.pos.y, 5);
+    fill(255, 194, 24);
+    circle(this.pos.x, this.pos.y, this.radius);
   }
 }
 
