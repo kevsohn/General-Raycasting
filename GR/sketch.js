@@ -3,7 +3,7 @@
 let walls = [];
 let beam;
 let src;
-let numBeams = 150;
+let numBeams = 30;
 let FOV = 60;
 let ball;
 let ballmoving = false;
@@ -42,6 +42,7 @@ function setup() {
   walls.push(new Boundary(0, height, width, height));
   walls.push(new Boundary(0, 0, 0, height));
   walls.push(new Boundary(width/2, 0, width/2, height));
+  createCircleWall(50, 50, 15, 20);
 
   ball = new massiveball(100,200,0,slider.value*2);
 
@@ -77,6 +78,7 @@ function setup() {
 
 // Draw function is called many times each second
 function draw() {
+  console.log(walls.length);
   background(15);
   // src.updatePosition(mouseX, mouseY);
   // src.show();
@@ -133,7 +135,6 @@ class Source {
         }
       }
       // Record magnitude of the ray connecting to the shortest wall.
-      console.log(`dmin is: ${dMin}`);
       beam.mag = dMin;
       if (pMin) {
         push();
@@ -236,14 +237,12 @@ function draw3DScene(rays) {
 
   // Find available width we have for each ray
   let w = Math.floor(width / 2 / rays.length);
-  console.log(w);
   rectMode(CENTER);
   for (let i = 0; i < rays.length; i++) {
     rect_height = 1/ray_mags[i]*1500;
     fill(255-rect_flux[i]);
     noStroke();
     rect(width/2+w*i, height/2, w, rect_height);
-    console.log(rect_height[i]); 
   }
   // Draw a border in case # rays is small (hardcoding 1 pixel for each ray right now)
   fill(1);
@@ -263,4 +262,28 @@ class massiveball{
         fill(255-2*this.mass/255, this.mass/255, this.mass*2/255); //need to integrate colormap somehow
         circle(this.pos.x, this.pos.y, this.radius);
     }
+}
+
+function createCircleWall(x0, y0, r, res) {
+
+  // Generate the points on the circle with the given resolution.
+  let thetas = [];
+  // np.linspace(0,360,res);
+  for (let i = 0; i<360; i+=360/res) {
+    thetas.push(i);
+  }
+  thetas = thetas.map(theta => theta * Math.PI / 180);
+  let x = thetas.map(theta => x0 + r*Math.cos(theta));
+  let y = thetas.map(theta => y0 + r*Math.sin(theta));
+
+  console.log(`x is: ${x}`);
+
+  // Connect all the neighboring points on the circle with a boundary
+  boundaries = [];
+  for (let i = 0; i < x.length-1; i++) {
+    boundaries.push(new Boundary(x[i], y[i], x[i+1], y[i+1]));
+  }
+  // Don't forget to connect the last point to the first point!
+  boundaries.push(new Boundary(x[x.length-1],y[y.length-1],x[0],y[0]));
+  walls = walls.concat(boundaries);
 }
