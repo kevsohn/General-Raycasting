@@ -1,8 +1,6 @@
 // Setup function is called once
 
 // Global parameters
-// var Walls;
-// var source;
 let walls;
 let beam;
 let src;
@@ -10,7 +8,7 @@ let src;
 function setup() {
   // Create the canvas
   canvas_h = windowHeight*.8
-  canvas_w = windowWidth*.5
+  canvas_w = windowWidth*.6
   canvas = createCanvas(canvas_w, canvas_h);
   let canvas_div = document.getElementById("sketch-div");
   canvas_div.style.width = `${canvas_w}px`;
@@ -26,25 +24,20 @@ function setup() {
   slider = document.getElementById("mass");
   output = document.getElementById("demo");
   output.innerHTML = slider.value; // Display the default slider value
-  output.innerHTML = slider.value; //Display the default slider value
   slider.oninput = function() {
     output.innerHTML = this.value;
   }
 
 
   // // Create the walls and light source
-  // source = new Lightsource(width / 2, height / 2);
-
   wall1 = new Boundary(100, 100, width/2, height/2+50);
   wall2 = new Boundary(width/2, height/2-50, width/2-100, height/2+50);
-  //beam = new Beam(100, height/2);
   let numBeams = 100;
   src = new Source(width/2, height/2, numBeams);
 }
 
 // Draw function is called many times each second
 function draw() {
-  // put drawing code here
   background(230);
   src.pos.x = mouseX;
   src.pos.y = mouseY;
@@ -52,63 +45,13 @@ function draw() {
   wall1.show();
   wall2.show();
 
-  //beam.show();
-  //beam.lookAt(mouseX, mouseY);
 
-  //let p1 = beam.intersect(wall1);
+  // Dont project rays past walls
   for (let beam of src.beams) {
     let p1 = beam.getIntersectionParams(wall1);
-    //let p2 = beam.intersect(wall2);
   }
-  //console.log(p1);
-
-  // // FORMAT REFERENCE:
-  // // Point ~ [x0, y1]
-  // // Line ~ [[x0,y0],[x1,y1]] == [point1, point2]
 
 
-  // // Initial list of points to draw lines to
-  // points = []
-  // Walls.forEach(wall => {
-  //   wall.forEach(point => {
-  //     points.append([point.x, point.y])
-  //   })
-  // })
-
-  // // Okay now we have the points we want so if we wanted rays to all the points we could do
-  // // line(point.x, point.y, source.x, source.y) for each point.
-  // // First though we want to remove points s.t. the ray to those points already passes through 
-  // // a wall
-
-  // // So lets collect all the lines to make this task easier.
-  // bdrylines = []
-  // Walls.forEach(wall => {
-  //   for (var i = 0; i < wall.length-1; i++) {
-  //     bdrylines.append([wall[i], wall[i+1]]); // Line is stored as two points in array [[x0,y0],[x1,y1]]
-  //   }
-  // })
-
-  // // Ok now lets get the lines from the source to the points
-
-  // sourcelines = []
-  // points.forEach(point => {
-  //   sourcelines.append([(source.x, source.y), (point.x, point.y)])
-  // })
-
-  // // Great so now lets eliminate the points we dont need by checking if a line to one of 
-  // // the points crosses a wall
-
-  // let rays = [];
-  // sourcelines.forEach(srcline => {
-  //   bdrylines.forEach(bdryline => {
-  //     if (line_intersection(srcline, bdryline) == false) {
-  //       rays.append(rays)
-  //     }
-  //   })
-  // })
-
-  // // Draw the rays
-  // rays.forEach(ray => line(rays[0][0], rays[0][1], rays[1][0], rays[1][1]))
 }
 
 class Beam {
