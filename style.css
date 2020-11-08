@@ -16,6 +16,10 @@ main {
   border: 3px solid blue;
 }
 
+p {
+  font-weight: 10;
+}
+
 body {
   padding: 0;
   margin: 0;
