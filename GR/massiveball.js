@@ -1,5 +1,5 @@
 class MassiveBall{
-    constructor(x, y, mass, radius, res){
+    constructor(x, y, mass, radius){
         this.pos = createVector(x,y);
         this.mass = mass; //kg
         this.radius = radius; //m

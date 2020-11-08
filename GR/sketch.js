@@ -51,7 +51,7 @@ function setup() {
   }
 
   src = new Source(width/4, height/2, numBeams);
-  ball = new MassiveBall(100, 200, slider.value*400, slider2.value*2, 30);
+  ball = new MassiveBall(100, 200, slider.value*400, slider2.value*2);
 
   for (let i=0; i<4; i++) {
     const x1 = random(width/2);

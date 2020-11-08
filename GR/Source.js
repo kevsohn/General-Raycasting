@@ -26,7 +26,6 @@ class Source {
       for (let beam of this.beams) {
         let pMin = null;
         let dMin = Infinity;
-        //let dMin = height;
         for (let wall of walls) {
           const p = beam.getIntersection(wall);
           if (p) {
