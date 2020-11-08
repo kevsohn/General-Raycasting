@@ -61,6 +61,7 @@ function setup() {
   walls.push(new Boundary(0, height, width, height));
   walls.push(new Boundary(0, 0, 0, height));
   walls.push(new Boundary(width/2, 0, width/2, height));
+  createCircleWall(50, 50, 15, 20);
 
   ball = new massiveball(100,200,slider.value*400,slider2.value*2);
 
@@ -115,7 +116,10 @@ function setup() {
 
 // Draw function is called many times each second
 function draw() {
-    background(30);
+  console.log(walls.length);
+  background(15);
+  // src.updatePosition(mouseX, mouseY);
+  // src.show();
 
     n = slider3.value;
 
@@ -209,4 +213,26 @@ function draw3DScene(rays) {
   // Draw a border in case # rays is small (hardcoding 1 pixel for each ray right now)
   fill(1);
   rect(width/2+w*rays.length + w/2, height/2, 1, height);
+}
+
+function createCircleWall(x0, y0, r, res) {
+
+  // Generate the points on the circle with the given resolution.
+  let thetas = [];
+  for (let i = 0; i<360; i+=360/res) {
+    thetas.push(i);
+  }
+  thetas = thetas.map(theta => theta * Math.PI / 180);
+  let x = thetas.map(theta => x0 + r*Math.cos(theta));
+  let y = thetas.map(theta => y0 + r*Math.sin(theta));
+
+
+  // Connect all the neighboring points on the circle with a boundary
+  boundaries = [];
+  for (let i = 0; i < x.length-1; i++) {
+    boundaries.push(new Boundary(x[i], y[i], x[i+1], y[i+1]));
+  }
+  // Don't forget to connect the last point to the first point!
+  boundaries.push(new Boundary(x[x.length-1],y[y.length-1],x[0],y[0]));
+  walls = walls.concat(boundaries);
 }
