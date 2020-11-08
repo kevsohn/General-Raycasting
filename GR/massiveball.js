@@ -5,9 +5,10 @@ class massiveball{
         this.mass = mass; //kg
         this.radius = radius; //m
     }
-
+  
+  
     show(){
-        fill(0);
-        ellipse(this.pos.x, this.pos.y, this.radius, this.radius);
+        fill(255-2*this.mass/255, this.mass/255, this.mass*2/255); //need to integrate colormap somehow
+        circle(this.pos.x, this.pos.y, this.radius);
     }
 }
