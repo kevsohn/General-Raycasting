@@ -1,15 +1,12 @@
 // Setup function is called once
-
 // Global parameters
-// var Walls;
-// var source;
-let walls;
+let walls = [];
 let beam;
 let src;
 
 function setup() {
   // Create the canvas
-  canvas = createCanvas(720, 400);
+  canvas = createCanvas(600, 400);
   canvas.parent('sketch-div');
 
   slider = document.getElementById("mass");
@@ -21,99 +18,88 @@ function setup() {
     output.innerHTML = this.value;
   }
 
-  // // Create the walls and light source
-  // source = lightsource(width / 2, height / 2);
-  // Walls = [w1, w2, w3, w4] // Input manually here to desired shape
-
-  wall1 = new Boundary(100, 100, width/2, height/2+50);
-  wall2 = new Boundary(width/2, height/2-50, width/2-100, height/2+50);
-  //beam = new Beam(100, height/2);
   let numBeams = 100;
   src = new Source(width/2, height/2, numBeams);
+  for (let i=0; i<5; i++) {
+    const x1 = random(width);
+    const x2 = random(width);
+    const y1 = random(height);
+    const y2 = random(height);
+    walls[i] = new Boundary(x1, y1, x2, y2);
+  }
+  walls.push(new Boundary(0, 0, width, 0));
+  walls.push(new Boundary(0, height, width, height));
+  walls.push(new Boundary(0, 0, 0, height));
+  walls.push(new Boundary(width, 0, width, height));
 }
 
 // Draw function is called many times each second
 function draw() {
   // put drawing code here
   background(230);
-  src.pos.x = mouseX;
-  src.pos.y = mouseY;
+  src.updatePosition(mouseX, mouseY);
   src.show();
-  wall1.show();
-  wall2.show();
 
-  //beam.show();
-  //beam.lookAt(mouseX, mouseY);
-
-  //let p1 = beam.intersect(wall1);
-  for (let beam of src.beams) {
-    let p1 = beam.getIntersectionParams(wall1);
-    //let p2 = beam.intersect(wall2);
+  for (let wall of walls) {
+    wall.show();
   }
-  //console.log(p1);
-
-  // // FORMAT REFERENCE:
-  // // Point ~ [x0, y1]
-  // // Line ~ [[x0,y0],[x1,y1]] == [point1, point2]
+  src.setBeamDirection(walls);
+}
 
 
-  // // Initial list of points to draw lines to
-  // points = []
-  // Walls.forEach(wall => {
-  //   wall.forEach(point => {
-  //     points.append([point.x, point.y])
-  //   })
-  // })
+class Source {
+  constructor(x, y, numBeams) {
+    this.pos = createVector(x, y);
+    this.beams = [];
+    for (let i=0; i<360; i+=360./numBeams) {
+      this.beams.push(new Beam(this.pos, radians(i)));
+    }
+  }
 
-  // // Okay now we have the points we want so if we wanted rays to all the points we could do
-  // // line(point.x, point.y, source.x, source.y) for each point.
-  // // First though we want to remove points s.t. the ray to those points already passes through 
-  // // a wall
+  updatePosition(x, y) {
+    this.pos.set(x, y);    
+  }
 
-  // // So lets collect all the lines to make this task easier.
-  // bdrylines = []
-  // Walls.forEach(wall => {
-  //   for (var i = 0; i < wall.length-1; i++) {
-  //     bdrylines.append([wall[i], wall[i+1]]); // Line is stored as two points in array [[x0,y0],[x1,y1]]
-  //   }
-  // })
+  setBeamDirection(walls) {
+    for (let beam of this.beams) {
+      let pMin = null;
+      let dMin = Infinity;
+      for (let wall of walls) {
+        const p = beam.getIntersection(wall);
+        if (p) {
+          const d = p5.Vector.dist(this.pos, p);
+          if (d < dMin) {
+            dMin = d;
+            pMin = p;
+          }
+        }
+      }
+      if (pMin) {
+        push();
+        stroke(255, 100, 100);
+        line(this.pos.x, this.pos.y, pMin.x, pMin.y);
+        pop();
+      }
+    }
+  }
 
-  // // Ok now lets get the lines from the source to the points
-
-  // sourcelines = []
-  // points.forEach(point => {
-  //   sourcelines.append([(source.x, source.y), (point.x, point.y)])
-  // })
-
-  // // Great so now lets eliminate the points we dont need by checking if a line to one of 
-  // // the points crosses a wall
-
-  // let rays = [];
-  // sourcelines.forEach(srcline => {
-  //   bdrylines.forEach(bdryline => {
-  //     if (line_intersection(srcline, bdryline) == false) {
-  //       rays.append(rays)
-  //     }
-  //   })
-  // })
-
-  // // Draw the rays
-  // rays.forEach(ray => line(rays[0][0], rays[0][1], rays[1][0], rays[1][1]))
+  show() {
+    fill(255, 200, 100);
+    circle(this.pos.x, this.pos.y, 5);
+  }
 }
 
 class Beam {
   constructor(pos, theta) { 
     this.pos = pos;      
     this.dir = p5.Vector.fromAngle(theta);  
-    this.int = false;
   }  
   
-  getIntersectionParams(wall) {
+  getIntersection(wall) {
     const x1 = wall.a.x;
     const y1 = wall.a.y;
     const x2 = wall.b.x;
     const y2 = wall.b.y;
-
     const x3 = this.pos.x;
     const y3 = this.pos.y;
     const x4 = this.pos.x + this.dir.x;
@@ -131,7 +117,6 @@ class Beam {
       this.p = createVector();
       this.p.x = x1 + t*(x2-x1);
       this.p.y = y1 + t*(y2-y1);
-      this.int = true;
       return this.p;
     }else {
       this.int = false;
@@ -150,44 +135,12 @@ class Beam {
       push();
       strokeWeight(1);
       translate(this.pos.x, this.pos.y);
-      if (!this.int) {
+      if (!this.p) {
         line(0, 0, this.dir.x*500, this.dir.y*500);
       }else {
         line(0, 0, this.p.x-this.pos.x, this.p.y-this.pos.y);
       }
       pop();
-  }
-}
-
-class Source {
-  constructor(x, y, numBeams) {
-    this.pos = createVector(x, y);
-    this.beams = [];
-    for (let i=0; i<360; i+=360./numBeams) {
-      this.beams.push(new Beam(this.pos, radians(i)));
-    }
-  }
-
-  updatePos(x, y) {
-    this.pos.set(x, y);    
-  }
-
-  getClosestIntersection(walls) {
-
-  }
-
-  setBeamDirection() {
-    for (let beam of this.beams) {
-      const p = beam.getIntersectionParams();
-    }
-  }
-
-  show() {
-    fill(0);
-    circle(this.pos.x, this.pos.y, 10);
-    for (let beam of this.beams) {
-      beam.show();
-    }
   }
 }
 
@@ -198,10 +151,10 @@ class Boundary {
   }
 
   show() {
-      stroke(0);
-      push();
-      strokeWeight(5);
-      line(this.a.x, this.a.y, this.b.x, this.b.y);
-      pop();
+    stroke(0);
+    push();
+    strokeWeight(5);
+    line(this.a.x, this.a.y, this.b.x, this.b.y);
+    pop();
   }
 }
