@@ -45,7 +45,7 @@ function setup() {
 }
 
 // Draw function is called many times each second
-function draw() {
+function draw() { 
   // put drawing code here
   background(255);
   wall.show();
@@ -179,10 +179,6 @@ class massiveball{
       this.pos = createVector(x,y);
       this.mass = mass; //kg
       this.radius = radius; //m
-  }
-
-  offsetLeft(){
-
   }
 
   show(){
