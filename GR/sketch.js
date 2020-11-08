@@ -48,20 +48,16 @@ function setup() {
   document.addEventListener('mousedown', function(e){
     dist_b = Math.sqrt((mouseX - ball.pos.x)**2 + (mouseY - ball.pos.y)**2);
     dist_src = Math.sqrt((mouseX - src.pos.x)**2 + (mouseY - src.pos.y)**2);
-    //console.log(dist_src)
-    if (dist_b < ball.radius){
-      // console.log('mouse down');
-      // return;
-      console.log('ball moving');
-      ballmoving = true;
-    }
-
-    if (dist_src < src.radius){
+    
+    if (dist_src < src.radius){ //check if you are grabbing the source
         console.log('source moving');
         sourcemoving = true;
     }
-    // console.log('mouse down on ball');
-    // ballmoving = true;
+    
+    else if (dist_b < ball.radius){ //check if you are grabbing the ball
+      console.log('ball moving');
+      ballmoving = true;
+    }
   })
 
   document.addEventListener('mouseup', function(e){
@@ -77,30 +73,28 @@ function setup() {
 
 // Draw function is called many times each second
 function draw() {
-  background(15);
-  // src.updatePosition(mouseX, mouseY);
-  // src.show();
+    background(15);
 
-  src.setBeamDirection(walls);
-  src.show();
+    draw3DScene(src.beams) // 3D rendering
 
-  ball.show();
-  ball.mass = slider.value*400;
+    ball.show();
+    ball.mass = slider.value*400; //slider for ball
 
-  if (ballmoving){
-    ball.pos.x = mouseX;
-    ball.pos.y = mouseY;
-  }
+    src.setBeamDirection(walls); // show walls
+    src.show(); // show source
 
-  if (sourcemoving){
-      src.updatePosition(mouseX, mouseY);
-  }
+    if (ballmoving){ // if you are moving the ball
+        ball.pos.x = mouseX;
+        ball.pos.y = mouseY;
+    }
 
-  for (let wall of walls) {
-    wall.show();
-  }
-  src.setBeamDirection(walls);
-  draw3DScene(src.beams)
+    if (sourcemoving){ // if you are moving the source
+        src.updatePosition(mouseX, mouseY);
+    }
+
+    for (let wall of walls) { // show walls
+        wall.show();
+    }
 }
 
 class Source {
