@@ -268,7 +268,6 @@ function createCircleWall(x0, y0, r, res) {
 
   // Generate the points on the circle with the given resolution.
   let thetas = [];
-  // np.linspace(0,360,res);
   for (let i = 0; i<360; i+=360/res) {
     thetas.push(i);
   }
@@ -276,7 +275,6 @@ function createCircleWall(x0, y0, r, res) {
   let x = thetas.map(theta => x0 + r*Math.cos(theta));
   let y = thetas.map(theta => y0 + r*Math.sin(theta));
 
-  console.log(`x is: ${x}`);
 
   // Connect all the neighboring points on the circle with a boundary
   boundaries = [];
