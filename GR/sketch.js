@@ -5,12 +5,15 @@ let beam;
 let src;
 let numBeams = 100;
 let FOV = 60;
+let phi = 0;
 let ball;
 let res = 35;
 let ballmoving = false;
 let sourcemoving = false;
 let angleLarger = false;
 let angleSmaller = false;
+let rotateRight = false;
+let rotateLeft = false;
 
 function setup() {
   // Create the canvas
@@ -28,27 +31,29 @@ function setup() {
 
   slider = document.getElementById("mass");
   output = document.getElementById("mass-output");
-  output.innerHTML = slider.value; // Display the default slider value
+  output.innerHTML = `Mass : ${slider.value}`; // Display the default slider value
   slider.oninput = function() {
-    output.innerHTML = this.value;
+    output.innerHTML = `Mass : ${this.value}`;
   }
 
   slider2 = document.getElementById("radius");
   output2 = document.getElementById("radius-output");
-  output2.innerHTML = slider2.value; // Display the default slider value
+  output2.innerHTML = `Radius : ${slider2.value}`; // Display the default slider value
   slider2.oninput = function() {
-    output2.innerHTML = this.value;
+    output2.innerHTML = `Radius :${this.value}`;
   }
 
   slider3 = document.getElementById("density");
   output3 = document.getElementById("density-output");
-  output3.innerHTML = slider3.value; // Display the default slider value
+  output3.innerHTML = `Density : ${slider3.value}`; // Display the default slider value
   slider3.oninput = function() {
-    output3.innerHTML = this.value;
+    output3.innerHTML = `Density : ${this.value}`;
   }
 
-  src = new Source(width/2, height/2, numBeams);
-  for (let i=0; i<5; i++) {
+  src = new Source(width/4, height/2, numBeams);
+  ball = new MassiveBall(100, 200, slider.value*400, slider2.value*2, 30);
+
+  for (let i=0; i<4; i++) {
     const x1 = random(width/2);
     const x2 = random(width/2);
     const y1 = random(height);
@@ -60,28 +65,26 @@ function setup() {
   walls.push(new Boundary(0, 0, 0, height));
   walls.push(new Boundary(width/2, 0, width/2, height));
 
-  ball = new MassiveBall(100, 200, slider.value*400, slider2.value*2, 30);
-
   document.addEventListener('keypress', function(e){
-      if (e.code == 'KeyW'){
-          print("W");
-          angleLarger = true;
-      }else if (e.code == 'KeyS'){
-          print("S")
-          angleSmaller = true;
-      }
+      if (e.code == 'KeyW'){        
+        angleLarger = true;
+      }else if (e.code == 'KeyS'){  
+        angleSmaller = true;
+      }else if (e.code == 'KeyD'){
+        rotateLeft = true;
+      }else if (e.code == 'KeyA'){
+        rotateRight = true;
+    }
   })
 
   document.addEventListener('mousedown', function(e){
     dist_b = Math.sqrt((mouseX - ball.pos.x)**2 + (mouseY - ball.pos.y)**2);
     dist_src = Math.sqrt((mouseX - src.pos.x)**2 + (mouseY - src.pos.y)**2);
     
-    if (dist_src < src.radius){ //check if you are grabbing the source
-        console.log('source moving');
-        sourcemoving = true;
-    }
-    
-    else if (dist_b < ball.radius){ //check if you are grabbing the ball
+    if (dist_src < src.radius){ //check if you are grabbing the source  
+      console.log('source moving');
+      sourcemoving = true;
+    }else if (dist_b < ball.radius){ //check if you are grabbing the ball
       console.log('ball moving');
       ballmoving = true;
     }
@@ -91,7 +94,6 @@ function setup() {
     if (ballmoving){
         ballmoving = false;
     }
-    
     if (sourcemoving){
         sourcemoving = false;
     }
@@ -101,14 +103,13 @@ function setup() {
 // Draw function is called many times each second
 function draw() {
     background(30);
-
     n = slider3.value;
 
     if (angleLarger){
         if (FOV + 15 <= 360){
             FOV += 15;
             angleLarger = false;
-            src.setAngles(FOV/2, numBeams);
+            src.setAngles(phi, FOV/2, numBeams);
         }
     }
 
@@ -116,13 +117,25 @@ function draw() {
         if (FOV - 15 >= 0){
             FOV -= 15;
             angleSmaller = false;
-            src.setAngles(FOV/2, numBeams);
+            src.setAngles(phi, FOV/2, numBeams);
         }
+    }
+
+    if (rotateLeft){
+      phi += 15;
+      rotateLeft = false;
+      src.setAngles(phi, FOV/2, numBeams);
+    }
+
+    if (rotateRight){
+      phi -= 15;
+      rotateRight = false;
+      src.setAngles(phi, FOV/2, numBeams);
     }
 
     if (n != numBeams){
       numBeams = n;
-      src.setAngles(FOV/2, numBeams);
+      src.setAngles(phi, FOV/2, numBeams);
     }
 
     draw3DScene(src.beams) // 3D rendering
@@ -178,6 +191,8 @@ function draw3DScene(rays) {
   //console.log(w);
   console.log(rays.length);
   rectMode(CENTER);
+  fill(222,98,27);
+  rect(3/4*width, 3/4*height, width/2, height/2);
   for (let i = 0; i < rays.length; i++) {
     rect_height = 1/ray_mags[i]*8000;
     fill(255-rect_flux[i]);

@@ -4,17 +4,18 @@ class Source {
       this.pos = createVector(x, y);
       this.beams = [];
       this.angle = FOV/2;
-      this.setAngles(this.angle);
+      this.setAngles(phi, this.angle, numBeams);
     }
   
-    setAngles(theta, num){
+    setAngles(phi, theta, num){
+      //console.log(phi);
       this.beams=[];
       if (theta == 0){
-          this.beams.push(new Beam(this.pos, 0.0));
+          this.beams.push(new Beam(this.pos, 0.0 + phi));
       }
       
       else{
-          for (let i=-theta; i<theta; i+=FOV / num) {
+          for (let i=-theta + phi; i<theta + phi; i+=FOV / num) {
               this.beams.push(new Beam(this.pos, radians(i)));
           }
       }
