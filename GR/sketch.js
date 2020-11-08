@@ -7,6 +7,8 @@ let wall;
 let light;
 let ball;
 
+let ballmoving = false;
+
 function setup() {
   // Create the canvas
   canvas = createCanvas(720, 400);
@@ -15,9 +17,6 @@ function setup() {
   slider = document.getElementById("mass");
   output = document.getElementById("demo");
   output.innerHTML = slider.value; // Display the default slider value
-
-  output.innerHTML = slider.value; //Display the default slider value
-
   slider.oninput = function() {
     output.innerHTML = this.value;
   }
@@ -28,7 +27,21 @@ function setup() {
 
   wall = new Boundary(width/2, height/2-50, width/2, height/2+50);
   light = new LightSource(100, height/2);
-  ball = new massiveball(100,200,20000,slider.value*2);
+  ball = new massiveball(100,200,0,slider.value*2);
+
+  document.addEventListener('mousedown', function(e){
+    distance = Math.sqrt((mouseX - ball.pos.x)**2 + (mouseY - ball.pos.y)**2);
+    if (ball.radius < distance){
+      console.log('mouse down');
+      return;
+    }
+    console.log('mouse down on ball');
+    ballmoving = true;
+  })
+
+  document.addEventListener('mouseup', function(e){
+    ballmoving = false;
+  })
 }
 
 // Draw function is called many times each second
@@ -37,7 +50,14 @@ function draw() {
   background(255);
   wall.show();
   ball.show();
-  ball.radius = slider.value*2;
+  ball.mass = slider.value*400;
+
+  if (ballmoving){
+    ball.pos.x = mouseX;
+    ball.pos.y = mouseY;
+  }
+
+  //ball.radius = slider.value*2;
   light.show();
   light.look(mouseX, mouseY);
 
@@ -159,6 +179,10 @@ class massiveball{
       this.pos = createVector(x,y);
       this.mass = mass; //kg
       this.radius = radius; //m
+  }
+
+  offsetLeft(){
+
   }
 
   show(){
